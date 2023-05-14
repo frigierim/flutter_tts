@@ -18,6 +18,7 @@ class _MyAppState extends State<MyApp> {
   late FlutterTts flutterTts;
   String? language;
   String? engine;
+  String ?voice;
   double volume = 0.5;
   double pitch = 1.0;
   double rate = 0.5;
@@ -109,6 +110,8 @@ class _MyAppState extends State<MyApp> {
 
   Future<dynamic> _getEngines() async => await flutterTts.getEngines;
 
+  Future<dynamic> _getVoices() async => await flutterTts.getVoices;
+  
   Future _getDefaultEngine() async {
     var engine = await flutterTts.getDefaultEngine;
     if (engine != null) {
@@ -194,6 +197,23 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
+  List<DropdownMenuItem<String>> getVoiceDropDownMenuItems(
+      dynamic voices) {
+    var items = <DropdownMenuItem<String>>[];
+    for (dynamic type in voices) {
+      items.add(DropdownMenuItem(
+          value: type["name"] as String?, child: Text(type["name"] as String)));
+    }
+    return items;
+  }
+
+  void changedVoiceDropDownItem(String? selectedType) {
+    setState(() {
+      voice = selectedType;
+      flutterTts.setVoice(voice!);
+    });
+  }
+  
   void _onChange(String text) {
     setState(() {
       _newVoiceText = text;
@@ -215,6 +235,7 @@ class _MyAppState extends State<MyApp> {
               _btnSection(),
               _engineSection(),
               _futureBuilder(),
+              _voiceBuilder(),
               _buildSliders(),
               if (isAndroid) _getMaxSpeechInputLengthSection(),
             ],
@@ -251,6 +272,18 @@ class _MyAppState extends State<MyApp> {
           return Text('Loading Languages...');
       });
 
+    Widget _voiceBuilder() => FutureBuilder<dynamic>(
+      future: _getVoices(),
+      builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+        if (snapshot.hasData) {
+          return _voiceDropDownSection(snapshot.data);
+        } else if (snapshot.hasError) {
+          return Text('Error loading languages...');
+        } else
+          return Text('Loading Languages...');
+      });
+
+  
   Widget _inputSection() => Container(
       alignment: Alignment.topCenter,
       padding: EdgeInsets.only(top: 25.0, left: 25.0, right: 25.0),
@@ -302,6 +335,20 @@ class _MyAppState extends State<MyApp> {
         ),
       ]));
 
+  Widget _voiceDropDownSection(dynamic voices) => Container(
+      padding: EdgeInsets.only(top: 10.0),
+      child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+        DropdownButton(
+          value: voice,
+          items: getVoiceDropDownMenuItems(voices),
+          onChanged: changedVoiceDropDownItem,
+        ),
+        Visibility(
+          visible: isAndroid,
+          child: Text("Is installed: $isCurrentLanguageInstalled"),
+        ),
+      ]));
+  
   Column _buildButtonColumn(Color color, Color splashColor, IconData icon,
       String label, Function func) {
     return Column(
