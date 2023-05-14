@@ -46,7 +46,6 @@ A flutter text to speech plugin (Swift,Kotlin)
 OSX version: 10.15
 ```
 
-
 [Example App](https://github.com/dlutton/flutter_tts/tree/macOS_app) from the macOS_app branch
 
 ## Web
