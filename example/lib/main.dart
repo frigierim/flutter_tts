@@ -209,13 +209,11 @@ class _MyAppState extends State<MyApp> {
 
   void changedVoiceDropDownItem(String? selectedType) {
     setState(() {
-    var voiceList = <Map<String, String>>[];
-    voiceList.add({
+    voice = selectedType;
+    flutterTts.setVoice({
         "name": selectedType! as String,
         "locale": selectedType! as String,
-      });      
-    voice = selectedType;
-    flutterTts.setVoice(voiceList);
+      });
     });
   }
   
